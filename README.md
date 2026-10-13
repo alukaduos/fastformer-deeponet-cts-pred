@@ -1,0 +1,110 @@
+# FastDON: Fastformer-Enhanced Deep Operator Network
+
+Code and experimental results for modeling nonlinear dynamical systems (Lorenz and Mackey-Glass) using a Fastformer-attention-enhanced Deep Operator Network.
+
+## Directory Structure
+
+```
+fdon_base/
+├── Fastformer.py                 # Shared Fastformer attention module
+├── case0_ori/                    # Experiment 1: noise-free dynamics
+│   ├── gendata_Lorenz.py         # Data generation — Lorenz system
+│   ├── gendata_MK.py             # Data generation — Mackey-Glass system
+│   ├── main_Lorenz_36.py         # Training & evaluation — Lorenz
+│   ├── main_MK_100.py            # Training & evaluation — Mackey-Glass
+│   ├── replot_error_ori.py       # Replot error histograms
+│   ├── lorenz_ori.csv            # Raw Lorenz time series
+│   ├── MG_ori.csv                # Raw Mackey-Glass time series
+│   ├── gendata_Lorenz_ori.joblib # Pre-generated training data
+│   ├── gendata_MK_ori.joblib
+│   ├── main_Lorenz_36_ori.joblib  # Trained model
+│   ├── main_MK_100_ori.joblib
+│   ├── *.pdf                     # Figure outputs
+│   ├── *.csv / *.xlsx            # Test records & hyperparameter tables
+│   └── lormkattr.txt             # System parameter log
+├── case1_noise/                  # Experiment 2: noisy dynamics
+│   ├── testgendata_Lorenz_noise.py  # Noisy data generation — Lorenz
+│   ├── testgendata_MK_noise.py      # Noisy data generation — Mackey-Glass
+│   ├── pred_noise_Lorenz.py        # Training & evaluation — Lorenz + noise
+│   ├── pred_noise_MK.py            # Training & evaluation — Mackey-Glass + noise
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── metrics.py             # Evaluation metrics (MAE, MSE, RMSE, NMSE, ...)
+│   ├── testgendata_Lorenz_noise_0.1.joblib
+│   ├── testgendata_MK_noise_0.2.joblib
+│   ├── pred_noise_Lorenz_data_mynet0.1.joblib  # Trained model
+│   ├── pred_noise_MK_0.2.joblib
+│   ├── *.pdf / *.npy / *.txt      # Figure outputs & numerical results
+│   └── train_record*.csv          # Training records
+├── requirements.txt
+└── README.md
+```
+
+## Installation
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd fdon_base
+
+# Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate        # Linux/macOS
+# venv\Scripts\activate         # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+> **Note on PyTorch:** If you need GPU support, please install the appropriate CUDA-enabled PyTorch build for your system. See [https://pytorch.org](https://pytorch.org) for instructions.
+
+## Usage
+
+All scripts should be run from the `fdon_base/` root directory so that cross-directory imports (e.g., `import Fastformer`, `from case0_ori.main_Lorenz_36 import FastDeepONet`) resolve correctly.
+
+### Experiment 1: Noise-Free Dynamics
+
+```bash
+# Step 1: Generate training data
+python case0_ori/gendata_Lorenz.py
+python case0_ori/gendata_MK.py
+
+# Step 2: Train and evaluate
+python case0_ori/main_Lorenz_36.py
+python case0_ori/main_MK_100.py
+
+# (Optional) Replot error histograms
+python case0_ori/replot_error_ori.py
+```
+
+### Experiment 2: Noisy Dynamics
+
+```bash
+# Step 1: Generate noisy training data
+python case1_noise/testgendata_Lorenz_noise.py
+python case1_noise/testgendata_MK_noise.py
+
+# Step 2: Train and evaluate
+python case1_noise/pred_noise_Lorenz.py
+python case1_noise/pred_noise_MK.py
+```
+
+### Pre-trained Models
+
+Pre-trained model files (`.joblib`) and pre-generated datasets are included. To evaluate without retraining, set `flag_train = False` in the corresponding `main_*.py` or `pred_noise_*.py` script before running.
+
+## Key Hyperparameters
+
+| Parameter | Lorenz | Mackey-Glass |
+|---|---|---|
+| Embedding dimension | Auto (from Lyapunov exponent) | Auto |
+| Prediction horizon | 36 | 100 |
+| Branch/Trunk width | 128 | 128 |
+| Epochs | 1000 | 1000 |
+| Batch size | 128 | 400 |
+| Learning rate | 0.001 | 0.001 |
+| Noise strength (Exp. 2) | 0.1 | 0.2 |
+
+## Authors
+
+Zelin Zhang, Zichao Song, Antony Mizzi, Michael Small, Jun Wu, Xiao Zhou, Jinyu Xu, Xianju Yuan
